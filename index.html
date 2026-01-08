@@ -80,10 +80,10 @@
 
         <script type="module" src="script.js"></script>
         <script>
-            // Service worker registration for PWA
+            // Service worker registration for PWA (scope root)
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
                 });
             }
         </script>
