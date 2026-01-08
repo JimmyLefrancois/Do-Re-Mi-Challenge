@@ -47,3 +47,33 @@ Si vous voulez, je peux :
 ---
 _Généré automatiquement — analyse concise du code et guide d'utilisation._
 # Do-Re-Mi-Challenge
+_Généré automatiquement — analyse concise du code et guide d'utilisation._
+
+**Mobile / PWA & packaging**
+
+- Un `manifest.json` a été ajouté pour permettre l'installation en tant que PWA. Voir [manifest.json](manifest.json).
+- Un `service worker` basique (`sw.js`) met en cache les ressources essentielles pour un usage hors‑ligne minimal.
+- Des icônes SVG sont présentes dans `icons/` (à remplacer par des PNG optimisés pour stores si nécessaire).
+
+Pour publier sur Android / iOS :
+
+1. PWA : tester l'installation depuis Chrome (Android) — le manifest et le service worker permettent l'installation en mode standalone.
+
+2. Packaging natif (recommandé pour stores) : utiliser Capacitor (Ionic) ou Cordova pour empaqueter l'app web :
+
+```bash
+npm install @capacitor/cli @capacitor/core --save-dev
+npx cap init do-re-mi-challenge com.example.doremi
+npx cap add android
+# copier le build web (ou simplement utiliser les fichiers présents)
+npx cap copy
+npx cap open android
+```
+
+3. Pour iOS, `npx cap add ios` puis ouvrir le projet Xcode et configurer les icônes/permissions avant build.
+
+4. Remplacer les icônes SVG par des PNG/ico adaptés (192x192, 512x512, icônes Android adaptive, Apple touch icons).
+
+Conseils :
+- Vérifier l'accessibilité (contraste, taille de cible, navigation clavier) avant publication.
+- Tester la PWA hors‑ligne et sur appareils réels.
