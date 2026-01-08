@@ -4,10 +4,14 @@
     box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+    /*min-height: 100vh;*/
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,7 +52,7 @@ h1 {
     gap: 10px;
     justify-content: center;
     margin-top: 15px;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
 }
 
 .mode-btn, .difficulty-btn {
@@ -146,6 +150,13 @@ h1 {
     border-radius: 10px;
 }
 
+.score-inline {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #667eea;
+}
+
 .score-item {
     text-align: center;
 }
@@ -166,7 +177,7 @@ h1 {
     font-size: 72px;
     font-weight: bold;
     color: #764ba2;
-    margin: 40px 0;
+    /*margin: 40px 0;*/
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -198,6 +209,33 @@ h1 {
 
 .note-btn:active {
     transform: scale(0.95);
+}
+
+/* Visual feedback on the selected button */
+.note-btn.correct {
+    background: linear-gradient(90deg, #43a047, #66bb6a);
+    color: white;
+    border-color: #2e7d32;
+    transform: scale(1.04);
+    box-shadow: 0 6px 18px rgba(76, 175, 80, 0.25);
+}
+
+.note-btn.incorrect {
+    background: linear-gradient(90deg, #e53935, #ef5350);
+    color: white;
+    border-color: #b71c1c;
+    transform: scale(1.02) rotate(-1deg);
+    box-shadow: 0 6px 18px rgba(244, 67, 54, 0.25);
+    animation: shake 0.35s ease-in-out;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
 }
 
 .feedback {
@@ -262,7 +300,7 @@ h1 {
     }
 
     .notes-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
 
@@ -287,6 +325,14 @@ h1 {
         flex-direction: column;
         gap: 8px;
         align-items: center;
+    }
+
+    .mode-buttons {
+        flex-wrap: nowrap;
+    }
+
+    .mode-btn, .difficulty-btn {
+        padding: 12px 15px;
     }
 }
 

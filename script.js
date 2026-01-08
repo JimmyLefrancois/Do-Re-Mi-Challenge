@@ -19,8 +19,7 @@ const gameArea = document.getElementById('gameArea');
 const currentNoteEl = document.getElementById('currentNote');
 const notesGrid = document.getElementById('notesGrid');
 const feedbackEl = document.getElementById('feedback');
-const correctScoreEl = document.getElementById('correctScore');
-const totalScoreEl = document.getElementById('totalScore');
+const scoreInlineEl = document.getElementById('scoreInline');
 const restartBtn = document.getElementById('restartBtn');
 const instructionEl = document.getElementById('instruction');
 const startGameBtn = document.getElementById('startGameBtn');
@@ -153,8 +152,13 @@ function handleTimeout() {
     correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     showFeedback(`⏱️ Temps écoulé ! C'était ${notes[correctNoteIndex]}`, false);
+    // Highlight the correct button so the user sees the answer
+    const correctNote = notes[correctNoteIndex];
+    const btns = Array.from(document.querySelectorAll('.note-btn'));
+    const target = btns.find(b => b.textContent === correctNote || b.dataset.note === correctNote);
+    if (target) target.classList.add('correct');
     updateScore();
-    
+
     setTimeout(() => {
         generateNewNote();
     }, 2000);
@@ -169,7 +173,8 @@ function createNoteButtons() {
         const btn = document.createElement('button');
         btn.className = 'note-btn';
         btn.textContent = note;
-        btn.addEventListener('click', () => checkAnswer(note));
+        btn.dataset.note = note;
+        btn.addEventListener('click', (e) => checkAnswer(note, e.currentTarget));
         notesGrid.appendChild(btn);
     });
 }
@@ -188,7 +193,7 @@ function generateNewNote() {
     }
 }
 
-function checkAnswer(selectedNote) {
+function checkAnswer(selectedNote, btnElement) {
     stopTimer();
     totalCount++;
     let correctNoteIndex;
@@ -204,6 +209,11 @@ function checkAnswer(selectedNote) {
         showFeedback(`Non, c'était ${notes[correctNoteIndex]} 😔`, false);
     }
 
+    // Mark the clicked button visually
+    if (btnElement) {
+        btnElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+    }
+
     updateScore();
     
     setTimeout(() => {
@@ -217,6 +227,5 @@ function showFeedback(message, isCorrect) {
 }
 
 function updateScore() {
-    correctScoreEl.textContent = correctCount;
-    totalScoreEl.textContent = totalCount;
+    if (scoreInlineEl) scoreInlineEl.textContent = `Réponses : ${correctCount}/${totalCount}`;
 }
