@@ -1,4 +1,4 @@
-import { notes, shuffleArray, getCorrectIndex, getRandomIndex } from './src/game.js';
+import { notes, shuffleArray, getCorrectIndex, getRandomIndex, setNotation } from './src/game.js';
 
 let currentMode = null;
 let currentDifficulty = null;
@@ -27,6 +27,24 @@ const timerBar = document.getElementById('timerBar');
 const timerFill = document.getElementById('timerFill');
 const timerText = document.getElementById('timerText');
 const installBtn = document.getElementById('installBtn');
+const intlCheckbox = document.getElementById('intlNotationCheckbox');
+
+// Initialiser la préférence de notation (stockée en localStorage)
+if (intlCheckbox) {
+    const pref = localStorage.getItem('useIntlNotation') === 'true';
+    intlCheckbox.checked = pref;
+    setNotation(pref);
+    intlCheckbox.addEventListener('change', (e) => {
+        const v = e.target.checked;
+        localStorage.setItem('useIntlNotation', v);
+        setNotation(v);
+        // Mettre à jour l'affichage si une partie est en cours
+        if (gameArea.classList.contains('active')) {
+            currentNoteEl.textContent = notes[currentNoteIndex];
+            createNoteButtons();
+        }
+    });
+}
 
 // Sélection du mode
 document.querySelectorAll('.mode-btn').forEach(btn => {

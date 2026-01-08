@@ -13,13 +13,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎵 Notes de Musique 🎵</h1>
-
-        <div style="text-align:center; margin-top:10px;">
-            <button id="installBtn" class="start-game-btn" style="display:none;">📥 Installer</button>
-        </div>
+        <h1>🎵 Do Ré Mi Challenge 🎵</h1>
         
         <div class="mode-selection" id="modeSelection">
+
+            <div style="text-align:center; margin-top:10px;">
+                <button id="installBtn" class="start-game-btn" style="display:none;">📥 Installer</button>
+            </div>
+            
             <div class="instruction">Choisissez le mode de jeu :</div>
             <div class="mode-buttons">
                 <button class="mode-btn" data-mode="forward">
@@ -43,6 +44,13 @@
                         😰 Difficile<br><small>(1s)</small>
                     </button>
                 </div>
+            </div>
+
+            <div class="notation-toggle" style="margin:10px 0; text-align:left;">
+                <label>
+                    <input type="checkbox" id="intlNotationCheckbox">
+                    Utiliser la notation internationale (C D E F G A B)
+                </label>
             </div>
 
             <button class="start-game-btn" id="startGameBtn" disabled>
