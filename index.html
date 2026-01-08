@@ -66,6 +66,10 @@
             <div class="instruction" id="instruction"></div>
             <div class="current-note" id="currentNote">Do</div>
 
+            <div style="text-align:center; margin-top:10px;">
+                <button id="installBtn" class="start-game-btn" style="display:none;">📥 Installer</button>
+            </div>
+
             <div class="notes-grid" id="notesGrid"></div>
 
             <div class="feedback" id="feedback"></div>
@@ -76,10 +80,10 @@
 
         <script type="module" src="script.js"></script>
         <script>
-            // Service worker registration for PWA
+            // Service worker registration for PWA (scope root)
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
                 });
             }
         </script>

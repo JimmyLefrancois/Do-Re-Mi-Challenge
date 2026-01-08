@@ -27,6 +27,7 @@ const startGameBtn = document.getElementById('startGameBtn');
 const timerBar = document.getElementById('timerBar');
 const timerFill = document.getElementById('timerFill');
 const timerText = document.getElementById('timerText');
+const installBtn = document.getElementById('installBtn');
 
 // Sélection du mode
 document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -74,6 +75,24 @@ restartBtn.addEventListener('click', () => {
     currentMode = null;
     currentDifficulty = null;
 });
+
+// PWA install prompt handling
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'inline-block';
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+    });
+}
 
 function startGame() {
     modeSelection.style.display = 'none';
