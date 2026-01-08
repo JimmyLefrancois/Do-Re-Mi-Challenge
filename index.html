@@ -30,13 +30,13 @@
                 <div class="instruction">Choisissez la difficulté :</div>
                 <div class="difficulty-buttons">
                     <button class="difficulty-btn" data-difficulty="easy">
-                        😊 Facile<br><small>(Temps infini)</small>
+                        😊 Facile<br><small>(∞)</small>
                     </button>
                     <button class="difficulty-btn" data-difficulty="medium">
-                        😐 Moyen<br><small>(3 secondes)</small>
+                        😐 Moyen<br><small>(3s)</small>
                     </button>
                     <button class="difficulty-btn" data-difficulty="hard">
-                        😰 Difficile<br><small>(1 seconde)</small>
+                        😰 Difficile<br><small>(1s)</small>
                     </button>
                 </div>
             </div>
@@ -48,14 +48,7 @@
 
         <div class="game-area" id="gameArea">
             <div class="score-board">
-                <div class="score-item">
-                    <div class="score-label">Bonnes réponses</div>
-                    <div class="score-value" id="correctScore">0</div>
-                </div>
-                <div class="score-item">
-                    <div class="score-label">Total</div>
-                    <div class="score-value" id="totalScore">0</div>
-                </div>
+                <div class="score-inline" id="scoreInline">Réponses : 0/0</div>
             </div>
 
             <div class="timer-text" id="timerText"></div>
@@ -74,7 +67,7 @@
 
             <div class="feedback" id="feedback"></div>
 
-            <button class="restart-btn" id="restartBtn">Changer de mode</button>
+            <button class="restart-btn" id="restartBtn">Retour à l'accueil</button>
         </div>
     </div>
 
