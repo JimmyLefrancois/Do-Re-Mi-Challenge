@@ -86,7 +86,7 @@ h1 {
 .start-game-btn {
     margin-top: 25px;
     padding: 15px 40px;
-    background: #4caf50;
+    background: #97a8f1;
     color: white;
     border: none;
     border-radius: 10px;
@@ -94,6 +94,11 @@ h1 {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
+}
+
+#installBtn {
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .start-game-btn:hover {
