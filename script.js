@@ -1,4 +1,5 @@
-const notes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+import { notes, shuffleArray, getCorrectIndex, getRandomIndex } from './src/game.js';
+
 let currentMode = null;
 let currentDifficulty = null;
 let currentNoteIndex = 0;
@@ -130,11 +131,7 @@ function handleTimeout() {
     totalCount++;
     let correctNoteIndex;
 
-    if (currentMode === 'forward') {
-        correctNoteIndex = (currentNoteIndex + 1) % notes.length;
-    } else {
-        correctNoteIndex = (currentNoteIndex - 1 + notes.length) % notes.length;
-    }
+    correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     showFeedback(`⏱️ Temps écoulé ! C'était ${notes[correctNoteIndex]}`, false);
     updateScore();
@@ -144,14 +141,7 @@ function handleTimeout() {
     }, 2000);
 }
 
-function shuffleArray(array) {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
+// Note: `shuffleArray` is imported from `src/game.js`.
 
 function createNoteButtons() {
     notesGrid.innerHTML = '';
@@ -184,11 +174,7 @@ function checkAnswer(selectedNote) {
     totalCount++;
     let correctNoteIndex;
 
-    if (currentMode === 'forward') {
-        correctNoteIndex = (currentNoteIndex + 1) % notes.length;
-    } else {
-        correctNoteIndex = (currentNoteIndex - 1 + notes.length) % notes.length;
-    }
+    correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     const isCorrect = selectedNote === notes[correctNoteIndex];
 
