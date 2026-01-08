@@ -29,6 +29,35 @@ const timerText = document.getElementById('timerText');
 const installBtn = document.getElementById('installBtn');
 const intlCheckbox = document.getElementById('intlNotationCheckbox');
 
+// --- Ripple helper & init ---
+function createRipple(el, ev) {
+    const rect = el.getBoundingClientRect();
+    const circle = document.createElement('span');
+    circle.className = 'ripple';
+    const size = Math.max(rect.width, rect.height) * 2;
+    circle.style.width = circle.style.height = size + 'px';
+    const x = ev && ev.clientX ? ev.clientX - rect.left - size / 2 : (rect.width / 2 - size / 2);
+    const y = ev && ev.clientY ? ev.clientY - rect.top - size / 2 : (rect.height / 2 - size / 2);
+    circle.style.left = x + 'px';
+    circle.style.top = y + 'px';
+    el.appendChild(circle);
+    circle.addEventListener('animationend', () => circle.remove());
+}
+
+function initRipples() {
+    const selectors = ['.mode-btn', '.difficulty-btn', '.start-game-btn', '.note-btn', '.restart-btn', '.icon-btn', '.tooltip-btn'];
+    selectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(btn => {
+            // ensure positioning for ripple
+            if (getComputedStyle(btn).position === 'static') {
+                btn.style.position = 'relative';
+            }
+            btn.style.overflow = 'hidden';
+            btn.addEventListener('pointerdown', (e) => createRipple(btn, e));
+        });
+    });
+}
+
 // Initialiser la préférence de notation (stockée en localStorage)
 if (intlCheckbox) {
     const pref = localStorage.getItem('useIntlNotation') === 'true';
@@ -193,6 +222,8 @@ function createNoteButtons() {
         btn.textContent = note;
         btn.dataset.note = note;
         btn.addEventListener('click', (e) => checkAnswer(note, e.currentTarget));
+        // create ripple on touch/click
+        btn.addEventListener('pointerdown', (e) => createRipple(btn, e));
         notesGrid.appendChild(btn);
     });
 }
@@ -209,6 +240,9 @@ function generateNewNote() {
         timerFill.style.width = '100%';
         startTimer(duration);
     }
+
+// initialize ripples on existing buttons
+initRipples();
 }
 
 function checkAnswer(selectedNote, btnElement) {

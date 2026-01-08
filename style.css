@@ -59,8 +59,8 @@ html, body {
 .label-with-tooltip { display:flex; align-items:center; gap:8px; justify-content:center; position:relative; margin-bottom: 10px;}
 .label-with-tooltip .instruction { margin: 0; }
 .tooltip-btn { background:#eef2ff; border:none; width:28px; height:28px; border-radius:50%; color:#4f46e5; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; padding:0; }
-.tooltip-text { position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); background:#111827; color:#fff; padding:8px 12px; border-radius:8px; font-size:13px; white-space:normal; display:none; box-shadow:0 6px 18px rgba(16,24,40,0.12); z-index:20; max-width:260px; text-align:left; }
-.label-with-tooltip:hover .tooltip-text, .label-with-tooltip:focus-within .tooltip-text { display:block; }
+.tooltip-text { position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%) translateY(6px); background:#111827; color:#fff; padding:8px 12px; border-radius:8px; font-size:13px; white-space:normal; opacity:0; pointer-events:none; box-shadow:0 6px 18px rgba(16,24,40,0.12); z-index:20; max-width:260px; text-align:left; transition:opacity 180ms ease, transform 180ms ease; }
+.label-with-tooltip:hover .tooltip-text, .label-with-tooltip:focus-within .tooltip-text { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
 
 @media (max-width: 480px) {
     .tooltip-text { bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:13px; max-width:220px; }
@@ -69,6 +69,34 @@ html, body {
 /* spacing between tooltip lines */
 .tooltip-text > div { margin-bottom: 8px; }
 .tooltip-text > div:last-child { margin-bottom: 0; }
+.tooltip-text { will-change: transform, opacity; }
+.mode-btn, .difficulty-btn, .start-game-btn, .note-btn, .restart-btn, .icon-btn, .tooltip-btn { position:relative; overflow:hidden; }
+
+/* Ripple effect */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    background: rgba(255,255,255,0.6);
+    animation: ripple 600ms ease-out;
+    pointer-events: none;
+    opacity: 0.95;
+}
+@keyframes ripple {
+    to { transform: scale(1); opacity: 0; }
+}
+
+/* Button press micro animation */
+.mode-btn:active, .difficulty-btn:active, .start-game-btn:active, .note-btn:active, .restart-btn:active { transform: scale(0.98); }
+
+/* Feedback animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+.feedback.show.correct { background: #16a34a; color: white; animation: pulse 600ms ease; }
+.feedback.show.incorrect { background: #dc2626; color: white; animation: shake 600ms ease; }
 .checkbox { display:flex; align-items:center; gap:10px; color:#374151 }
 .checkbox input { width:18px; height:18px; accent-color:#6c5ce7; }
 
