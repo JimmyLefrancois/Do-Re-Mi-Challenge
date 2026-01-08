@@ -9,30 +9,42 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <title>Notes de Musique - Jeu d'apprentissage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎵 Do Ré Mi Challenge 🎵</h1>
-        
-        <div class="mode-selection" id="modeSelection">
+    <main class="content">
+        <section class="card container">
+            <h1 class="sr-only">Do Ré Mi Challenge</h1>
 
-            <div style="text-align:center; margin-top:10px;">
-                <button id="installBtn" class="start-game-btn" style="display:none;">📥 Installer</button>
-            </div>
-            
-            <div class="instruction">Choisissez le mode de jeu :</div>
+            <p style="text-align: center;">
+                <img src="logo.png" alt="Logo du jeu Do Ré Mi Challenge" class="logo" width="135px">
+            </p>
+
+            <button id="installBtn" class="icon-btn" style="display:none;">📥</button>
+
+            <div class="mode-selection" id="modeSelection">
+
+            <div class="instruction">Type de défi :</div>
             <div class="mode-buttons">
                 <button class="mode-btn" data-mode="forward">
-                    ▶️ À l'endroit
+                    Note suivante ▶️
                 </button>
                 <button class="mode-btn" data-mode="backward">
-                    ◀️ À l'envers
+                    Note précédente ◀️
                 </button>
             </div>
 
             <div class="difficulty-section">
-                <div class="instruction">Choisissez la difficulté :</div>
+                <div class="label-with-tooltip">
+                    <div class="instruction">Choisissez la difficulté :</div>
+                    <button type="button" class="tooltip-btn" aria-describedby="difficultyTooltip" aria-label="Aide difficulté">ⓘ</button>
+                    <div id="difficultyTooltip" role="tooltip" class="tooltip-text">
+                        <div>Facile : pas de limite de temps.</div>
+                        <div>Moyen : 3 secondes pour répondre.</div>
+                        <div>Difficile : 1 seconde, plus rapide.</div>
+                    </div>
+                </div>
                 <div class="difficulty-buttons">
                     <button class="difficulty-btn" data-difficulty="easy">
                         😊 Facile<br><small>(∞)</small>
@@ -46,16 +58,18 @@
                 </div>
             </div>
 
-            <div class="notation-toggle" style="margin:10px 0; text-align:left;">
-                <label>
+            <div class="notation-toggle">
+                <label class="checkbox">
                     <input type="checkbox" id="intlNotationCheckbox">
-                    Utiliser la notation internationale (C D E F G A B)
+                    <span>Notation internationale</span>
                 </label>
             </div>
 
-            <button class="start-game-btn" id="startGameBtn" disabled>
-                🎮 Commencer le jeu
-            </button>
+            <div class="actions">
+                <button class="start-game-btn" id="startGameBtn" disabled>
+                    🎮 Commencer
+                </button>
+            </div>
         </div>
 
         <div class="game-area" id="gameArea">
@@ -77,7 +91,8 @@
 
             <button class="restart-btn" id="restartBtn">Retour à l'accueil</button>
         </div>
-    </div>
+        </section>
+    </main>
 
         <script type="module" src="script.js"></script>
         <script>
