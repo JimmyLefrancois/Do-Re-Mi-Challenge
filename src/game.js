@@ -1,4 +1,9 @@
-export const notes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+export let notes = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+export const intlNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+export function setNotation(international = false) {
+  notes = international ? intlNotes : ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+}
 
 export function shuffleArray(array) {
   const shuffled = [...array];
