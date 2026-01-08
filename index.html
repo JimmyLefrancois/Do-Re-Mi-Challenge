@@ -1,0 +1,74 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes de Musique - Jeu d'apprentissage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Notes de Musique 🎵</h1>
+        
+        <div class="mode-selection" id="modeSelection">
+            <div class="instruction">Choisissez le mode de jeu :</div>
+            <div class="mode-buttons">
+                <button class="mode-btn" data-mode="forward">
+                    ▶️ À l'endroit
+                </button>
+                <button class="mode-btn" data-mode="backward">
+                    ◀️ À l'envers
+                </button>
+            </div>
+
+            <div class="difficulty-section">
+                <div class="instruction">Choisissez la difficulté :</div>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn" data-difficulty="easy">
+                        😊 Facile<br><small>(Temps infini)</small>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="medium">
+                        😐 Moyen<br><small>(3 secondes)</small>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="hard">
+                        😰 Difficile<br><small>(1 seconde)</small>
+                    </button>
+                </div>
+            </div>
+
+            <button class="start-game-btn" id="startGameBtn" disabled>
+                🎮 Commencer le jeu
+            </button>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-label">Bonnes réponses</div>
+                    <div class="score-value" id="correctScore">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Total</div>
+                    <div class="score-value" id="totalScore">0</div>
+                </div>
+            </div>
+
+            <div class="timer-text" id="timerText"></div>
+            <div class="timer-bar" id="timerBar" style="display: none;">
+                <div class="timer-fill" id="timerFill"></div>
+            </div>
+
+            <div class="instruction" id="instruction"></div>
+            <div class="current-note" id="currentNote">Do</div>
+
+            <div class="notes-grid" id="notesGrid"></div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="restart-btn" id="restartBtn">Changer de mode</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
