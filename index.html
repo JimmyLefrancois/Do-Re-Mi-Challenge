@@ -84,9 +84,8 @@
 
     <div class="instruction-and-volume">
         <div class="instruction" id="instruction"></div>
-        <div class="audio-controls">
-            <button id="muteBtn" class="icon-btn" aria-pressed="false">🔊</button>
-        </div>
+            <div class="audio-controls">
+            <button id="muteBtn" class="icon-btn" aria-pressed="false">🔊</button>            </div>
     </div>
     <div class="current-note" id="currentNote">Do</div>
 
@@ -99,7 +98,9 @@
 </section>
 </main>
 
-<script type="module" src="script.js"></script>
+    <script src="https://unpkg.com/soundfont-player@0.15.2/dist/soundfont-player.js"></script>
+    <script src="https://unpkg.com/tone@next/build/Tone.js"></script>
+    <script type="module" src="script.js"></script>
 <script>
     // Service worker registration for PWA (scope root)
     if ('serviceWorker' in navigator) {
