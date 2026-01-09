@@ -1,3 +1,6 @@
+# Ignore generated keystore and local signing properties
+/android-twa/android.keystore
+/android-twa/keystore.properties
 # Node
 node_modules/
 npm-debug.log*
@@ -46,3 +49,23 @@ Thumbs.db
 # Misc
 *.tgz
 *.zip
+
+# APKs / output bundles
+app-release.apks
+apks/
+
+# Android / Gradle
+/.gradle/
+android-twa/build/
+android-twa/app/build/
+android-twa/.gradle/
+android-twa/gradle/
+
+# IDE / editors
+*.iml
+.project
+.classpath
+
+# Test / coverage
+.pytest_cache/
+coverage-report/
