@@ -1,5 +1,6 @@
 import { notes, shuffleArray, getCorrectIndex, getRandomIndex, setNotation } from './src/game.js';
 import audio, { initAudio, playNoteByIndex, playNoteByName, toggleMute, isMuted } from './src/audio.js';
+import { initRipples, createNoteButtons, highlightButton, setCurrentNoteText, setTimerVisibility, setTimerFillWidth, setTimerText, updateScore, showFeedback } from './src/ui.js';
 
 let currentMode = null;
 let currentDifficulty = null;
@@ -32,34 +33,7 @@ const installBtn = document.getElementById('installBtn');
 const intlCheckbox = document.getElementById('intlNotationCheckbox');
 const muteBtn = document.getElementById('muteBtn');
 
-// --- Ripple helper & init ---
-function createRipple(el, ev) {
-    const rect = el.getBoundingClientRect();
-    const circle = document.createElement('span');
-    circle.className = 'ripple';
-    const size = Math.max(rect.width, rect.height) * 2;
-    circle.style.width = circle.style.height = size + 'px';
-    const x = ev && ev.clientX ? ev.clientX - rect.left - size / 2 : (rect.width / 2 - size / 2);
-    const y = ev && ev.clientY ? ev.clientY - rect.top - size / 2 : (rect.height / 2 - size / 2);
-    circle.style.left = x + 'px';
-    circle.style.top = y + 'px';
-    el.appendChild(circle);
-    circle.addEventListener('animationend', () => circle.remove());
-}
 
-function initRipples() {
-    const selectors = ['.mode-btn', '.difficulty-btn', '.start-game-btn', '.note-btn', '.restart-btn', '.icon-btn', '.tooltip-btn'];
-    selectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(btn => {
-            // ensure positioning for ripple
-            if (getComputedStyle(btn).position === 'static') {
-                btn.style.position = 'relative';
-            }
-            btn.style.overflow = 'hidden';
-            btn.addEventListener('pointerdown', (e) => createRipple(btn, e));
-        });
-    });
-}
 
 // Initialise le sous-système audio (attach listeners pour déverrouiller l'audio)
 initAudio();
@@ -160,10 +134,10 @@ function startGame() {
 
     // Afficher ou masquer la barre de timer
     if (difficultySettings[currentDifficulty].time > 0) {
-        timerBar.style.display = 'block';
+        setTimerVisibility(true);
     } else {
-        timerBar.style.display = 'none';
-        timerText.textContent = '';
+        setTimerVisibility(false);
+        setTimerText('');
     }
     
     createNoteButtons();
@@ -182,9 +156,8 @@ function startTimer(duration) {
         const now = Date.now();
         const remaining = Math.max(0, endTime - now);
         const percentage = (remaining / (duration * 1000)) * 100;
-        
-        timerFill.style.width = percentage + '%';
-        timerText.textContent = `⏱️ ${Math.ceil(remaining / 1000)}s`;
+        setTimerFillWidth(percentage);
+        setTimerText(`⏱️ ${Math.ceil(remaining / 1000)}s`);
 
         if (remaining <= 0) {
             stopTimer();
@@ -209,10 +182,8 @@ function handleTimeout() {
     showFeedback(`⏱️ Temps écoulé ! C'était ${notes[correctNoteIndex]}`, false);
     // Highlight the correct button so the user sees the answer
     const correctNote = notes[correctNoteIndex];
-    const btns = Array.from(document.querySelectorAll('.note-btn'));
-    const target = btns.find(b => b.textContent === correctNote || b.dataset.note === correctNote);
-    if (target) target.classList.add('correct');
-    updateScore();
+    highlightButton(correctNote, 'correct');
+    updateScore(correctCount, totalCount);
 
     setTimeout(() => {
         generateNewNote();
@@ -221,33 +192,21 @@ function handleTimeout() {
 
 // Note: `shuffleArray` is imported from `src/game.js`.
 
-function createNoteButtons() {
-    notesGrid.innerHTML = '';
-    const shuffledNotes = shuffleArray(notes);
-    shuffledNotes.forEach(note => {
-        const btn = document.createElement('button');
-        btn.className = 'note-btn';
-        btn.textContent = note;
-        btn.dataset.note = note;
-        btn.addEventListener('click', (e) => checkAnswer(note, e.currentTarget));
-        // create ripple on touch/click
-        btn.addEventListener('pointerdown', (e) => createRipple(btn, e));
-        notesGrid.appendChild(btn);
-    });
-}
+// note buttons are created by src/ui.js:createNoteButtons(onClick)
 
 function generateNewNote() {
     currentNoteIndex = Math.floor(Math.random() * notes.length);
-    currentNoteEl.textContent = notes[currentNoteIndex];
-    feedbackEl.classList.remove('show');
-    createNoteButtons();
+    setCurrentNoteText(notes[currentNoteIndex]);
+    // clear any feedback state and recreate buttons
+    showFeedback('', false);
+    createNoteButtons(checkAnswer);
     // Play the note when it appears
     playNoteByIndex(currentNoteIndex);
     
     // Démarrer le timer selon la difficulté
     const duration = difficultySettings[currentDifficulty].time;
     if (duration > 0) {
-        timerFill.style.width = '100%';
+        setTimerFillWidth(100);
         startTimer(duration);
     }
 
@@ -279,17 +238,13 @@ function checkAnswer(selectedNote, btnElement) {
         btnElement.classList.add(isCorrect ? 'correct' : 'incorrect');
     }
 
-    updateScore();
+    updateScore(correctCount, totalCount);
     
     setTimeout(() => {
         generateNewNote();
     }, 1500);
 }
 
-function showFeedback(message, isCorrect) {
-    feedbackEl.textContent = message;
-    feedbackEl.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
-}
 
 function updateScore() {
     if (scoreInlineEl) scoreInlineEl.textContent = `Réponses : ${correctCount}/${totalCount}`;
