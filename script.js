@@ -7,6 +7,9 @@ let correctCount = 0;
 let totalCount = 0;
 let timerInterval = null;
 let timeLeft = 0;
+let audioCtx = null;
+let masterGain = null;
+let isMuted = false;
 
 const difficultySettings = {
     easy: { time: 0, label: '∞' },
@@ -28,6 +31,7 @@ const timerFill = document.getElementById('timerFill');
 const timerText = document.getElementById('timerText');
 const installBtn = document.getElementById('installBtn');
 const intlCheckbox = document.getElementById('intlNotationCheckbox');
+const muteBtn = document.getElementById('muteBtn');
 
 // --- Ripple helper & init ---
 function createRipple(el, ev) {
@@ -56,6 +60,43 @@ function initRipples() {
             btn.addEventListener('pointerdown', (e) => createRipple(btn, e));
         });
     });
+}
+
+// Audio setup using WebAudio: create context and master gain
+function ensureAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(audioCtx.destination);
+    }
+}
+
+function playNoteByIndex(index, duration = 0.6) {
+    if (isMuted) return;
+    ensureAudio();
+    const semitoneMap = [0, 2, 4, 5, 7, 9, 11]; // Do..Si in C major
+    const baseFreq = 261.6255653005986; // Middle C (C4)
+    const freq = baseFreq * Math.pow(2, semitoneMap[index] / 12);
+
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0, audioCtx.currentTime);
+    env.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
+    env.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(env);
+    env.connect(masterGain);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration + 0.05);
+}
+
+function playNoteByName(name, duration = 0.6) {
+    const map = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+    const intlMap = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const idx = map.indexOf(name) !== -1 ? map.indexOf(name) : intlMap.indexOf(name);
+    if (idx >= 0) playNoteByIndex(idx, duration);
 }
 
 // Initialiser la préférence de notation (stockée en localStorage)
@@ -233,6 +274,8 @@ function generateNewNote() {
     currentNoteEl.textContent = notes[currentNoteIndex];
     feedbackEl.classList.remove('show');
     createNoteButtons();
+    // Play the note when it appears
+    playNoteByIndex(currentNoteIndex);
     
     // Démarrer le timer selon la difficulté
     const duration = difficultySettings[currentDifficulty].time;
@@ -253,6 +296,9 @@ function checkAnswer(selectedNote, btnElement) {
     correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     const isCorrect = selectedNote === notes[correctNoteIndex];
+
+    // Play the selected note for feedback
+    playNoteByName(selectedNote, isCorrect ? 0.5 : 0.7);
 
     if (isCorrect) {
         correctCount++;
@@ -280,4 +326,15 @@ function showFeedback(message, isCorrect) {
 
 function updateScore() {
     if (scoreInlineEl) scoreInlineEl.textContent = `Réponses : ${correctCount}/${totalCount}`;
+}
+
+// Mute button handling
+if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteBtn.textContent = isMuted ? '🔇' : '🔊';
+        muteBtn.setAttribute('aria-pressed', String(isMuted));
+        if (masterGain) masterGain.gain.value = isMuted ? 0 : 1;
+        if (audioCtx && audioCtx.state === 'suspended' && !isMuted) audioCtx.resume();
+    });
 }
