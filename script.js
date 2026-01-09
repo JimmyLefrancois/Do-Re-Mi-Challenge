@@ -7,6 +7,21 @@ let correctCount = 0;
 let totalCount = 0;
 let timerInterval = null;
 let timeLeft = 0;
+let audioCtx = null;
+let masterGain = null;
+let isMuted = false;
+let pianoInstrument = null;
+let selectedInstrument = 'bright_acoustic_piano-mp3';
+let synthFallback = null;
+
+function disposeSynthFallback() {
+    try {
+        if (synthFallback && typeof synthFallback.dispose === 'function') synthFallback.dispose();
+    } catch (e) {
+        console.warn('Error disposing synthFallback', e);
+    }
+    synthFallback = null;
+}
 
 const difficultySettings = {
     easy: { time: 0, label: '∞' },
@@ -28,6 +43,7 @@ const timerFill = document.getElementById('timerFill');
 const timerText = document.getElementById('timerText');
 const installBtn = document.getElementById('installBtn');
 const intlCheckbox = document.getElementById('intlNotationCheckbox');
+const muteBtn = document.getElementById('muteBtn');
 
 // --- Ripple helper & init ---
 function createRipple(el, ev) {
@@ -57,6 +73,220 @@ function initRipples() {
         });
     });
 }
+
+// Audio setup using WebAudio: create context and master gain
+function ensureAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(audioCtx.destination);
+    }
+}
+
+// Load a piano instrument via soundfont-player (CDN injected in index.html)
+function ensurePiano() {
+    if (pianoInstrument) return Promise.resolve(pianoInstrument);
+    ensureAudio();
+    if (typeof Soundfont === 'undefined') {
+        console.warn('Soundfont library not available, will try Tone fallback');
+        // try to initialise Tone fallback synth
+        return ensureToneFallback().then(() => null);
+    }
+    console.log('Loading instrument', selectedInstrument);
+    return Soundfont.instrument(audioCtx, selectedInstrument, { soundfont: 'MusyngKite' })
+        .then(inst => { pianoInstrument = inst; console.log('Instrument loaded:', selectedInstrument); return inst; })
+        .catch((err) => { console.warn('Instrument load failed', selectedInstrument, err); return null; });
+}
+
+// Initialise Tone.js fallback synth if Soundfont not available or load fails
+async function ensureToneFallback() {
+    if (synthFallback) return Promise.resolve(synthFallback);
+    if (typeof Tone === 'undefined') {
+        console.warn('Tone.js not available');
+        return Promise.resolve(null);
+    }
+    try {
+        // create a basic default PolySynth; specific instrument presets will replace it
+        synthFallback = new Tone.PolySynth(Tone.Synth).toDestination();
+        console.log('Tone fallback base synth ready');
+        // apply current selected instrument preset
+        await applyTonePreset(selectedInstrument);
+        return Promise.resolve(synthFallback);
+    } catch (err) {
+        console.warn('Failed to create Tone fallback', err);
+        return Promise.resolve(null);
+    }
+}
+
+async function applyTonePreset(name) {
+    if (typeof Tone === 'undefined') return;
+    disposeSynthFallback();
+    // choose synth/preset per instrument name
+    switch (name) {
+        case 'acoustic_guitar_steel':
+            synthFallback = new Tone.PluckSynth().toDestination();
+            break;
+        case 'electric_piano_1':
+            synthFallback = new Tone.PolySynth(Tone.FMSynth, {
+                harmonicity: 3,
+                modulationIndex: 10,
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.001, decay: 0.5, sustain: 0.3, release: 1 }
+            }).toDestination();
+            break;
+        case 'violin':
+            synthFallback = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'sawtooth' },
+                envelope: { attack: 0.02, decay: 0.6, sustain: 0.7, release: 1.2 }
+            }).toDestination();
+            break;
+        case 'trumpet':
+            synthFallback = new Tone.PolySynth(Tone.AMSynth, {
+                oscillator: { type: 'sawtooth' },
+                envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.6 }
+            }).toDestination();
+            break;
+        case 'flute':
+            synthFallback = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.01, decay: 0.3, sustain: 0.3, release: 0.8 }
+            }).toDestination();
+            break;
+        default:
+            // default piano-like synth
+            synthFallback = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.002, decay: 0.4, sustain: 0.2, release: 1 }
+            }).toDestination();
+            break;
+    }
+    console.log('Applied Tone preset for', name);
+}
+
+async function playNoteByIndex(index, duration = 0.6) {
+    if (isMuted) return;
+    ensureAudio();
+    const noteNames = ['C4','D4','E4','F4','G4','A4','B4'];
+    // try to ensure/load instrument and play sample if available
+    let inst = null;
+    try {
+        inst = await ensurePiano();
+    } catch (err) {
+        console.warn('ensurePiano error', err);
+    }
+    if (inst) {
+        try {
+            inst.play(noteNames[index], undefined, { duration });
+            console.log('Played sample note', noteNames[index], 'with', selectedInstrument);
+            return;
+        } catch (e) {
+            console.warn('Sample play failed, falling back to synth', e);
+        }
+    } else {
+        console.log('No sample instrument available, using synth fallback (', selectedInstrument, ')');
+    }
+
+    // If Soundfont not available, try Tone fallback
+    if (!synthFallback && typeof Tone !== 'undefined') {
+        await ensureToneFallback();
+    }
+    if (synthFallback) {
+        try {
+            // map C4..B4 to Tone notation
+            const toneNotes = ['C4','D4','E4','F4','G4','A4','B4'];
+            synthFallback.triggerAttackRelease(toneNotes[index], duration);
+            console.log('Played note via Tone fallback', toneNotes[index]);
+            return;
+        } catch (err) {
+            console.warn('Tone fallback failed', err);
+        }
+    }
+
+    // Fallback synth (kept for offline / no-soundfont situations): additive + noise
+    const semitoneMap = [0, 2, 4, 5, 7, 9, 11]; // Do..Si in C major
+    const baseFreq = 261.6255653005986; // Middle C (C4)
+    const freq = baseFreq * Math.pow(2, semitoneMap[index] / 12);
+
+    // Piano-like synth: multiple partials + short noise attack + lowpass body
+    const now = audioCtx.currentTime;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(8000, now);
+    filter.Q.value = 0.8;
+
+    const env = audioCtx.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+
+    // Connect chain: partials -> filter -> env -> masterGain
+    filter.connect(env);
+    env.connect(masterGain);
+
+    // Additive partials (fundamental + harmonics)
+    const partials = [1, 0.6, 0.28, 0.12];
+    const detunes = [0, 0.2, -0.15, 0.3];
+    partials.forEach((amp, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = i === 0 ? 'sine' : 'triangle';
+        o.frequency.value = freq * (i + 1);
+        o.detune.value = detunes[i] || 0;
+        g.gain.value = amp;
+        o.connect(g);
+        g.connect(filter);
+        o.start(now);
+        o.stop(now + duration + 0.5);
+    });
+
+    // Short percussive noise for hammer attack
+    const noiseBuffer = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.03), audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const nb = audioCtx.createBufferSource();
+    nb.buffer = noiseBuffer;
+    nb.connect(filter);
+    nb.start(now);
+
+    // Envelope (fast attack, exponential decay)
+    const attack = 0.003;
+    const decay = Math.max(0.05, duration * 0.9);
+    env.gain.cancelScheduledValues(now);
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(1.0, now + attack);
+    env.gain.exponentialRampToValueAtTime(0.0005, now + decay + attack);
+
+    // Slight filter movement
+    filter.frequency.setValueAtTime(4000, now);
+    filter.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+}
+
+function playNoteByName(name, duration = 0.6) {
+    const map = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+    const intlMap = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const idx = map.indexOf(name) !== -1 ? map.indexOf(name) : intlMap.indexOf(name);
+    if (idx >= 0) playNoteByIndex(idx, duration);
+}
+
+// Ensure piano loads on first user gesture (resume audio + load SoundFont)
+function attachAudioUnlockers() {
+    const unlock = () => {
+        ensureAudio();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        // load piano and log result
+        ensurePiano().then(inst => {
+            if (inst) console.log('Piano ready after user gesture');
+            else console.log('Piano not ready after user gesture');
+        });
+        window.removeEventListener('pointerdown', unlock);
+        window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+}
+
+attachAudioUnlockers();
+
+// instrument selector removed — using fixed default instrument
 
 // Initialiser la préférence de notation (stockée en localStorage)
 if (intlCheckbox) {
@@ -233,6 +463,8 @@ function generateNewNote() {
     currentNoteEl.textContent = notes[currentNoteIndex];
     feedbackEl.classList.remove('show');
     createNoteButtons();
+    // Play the note when it appears
+    playNoteByIndex(currentNoteIndex);
     
     // Démarrer le timer selon la difficulté
     const duration = difficultySettings[currentDifficulty].time;
@@ -253,6 +485,9 @@ function checkAnswer(selectedNote, btnElement) {
     correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     const isCorrect = selectedNote === notes[correctNoteIndex];
+
+    // Play the selected note for feedback
+    playNoteByName(selectedNote, isCorrect ? 0.5 : 0.7);
 
     if (isCorrect) {
         correctCount++;
@@ -280,4 +515,15 @@ function showFeedback(message, isCorrect) {
 
 function updateScore() {
     if (scoreInlineEl) scoreInlineEl.textContent = `Réponses : ${correctCount}/${totalCount}`;
+}
+
+// Mute button handling
+if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteBtn.textContent = isMuted ? '🔇' : '🔊';
+        muteBtn.setAttribute('aria-pressed', String(isMuted));
+        if (masterGain) masterGain.gain.value = isMuted ? 0 : 1;
+        if (audioCtx && audioCtx.state === 'suspended' && !isMuted) audioCtx.resume();
+    });
 }

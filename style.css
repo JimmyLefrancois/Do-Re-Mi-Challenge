@@ -34,6 +34,10 @@ html, body {
   box-shadow: 0 6px 18px rgba(16,24,40,0.08);
 }
 
+#muteBtn {
+    font-size: 30px;
+}
+
 .sr-only { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
 .instruction { color: #374151; font-weight: 500; margin-bottom: 8px; }
@@ -125,16 +129,20 @@ html, body {
 .game-area { display:none; margin-top:8px; }
 .game-area.active { display:block; }
 
-.score-board { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+//.score-board { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .score-inline { color:#374151; font-weight:600; }
-
+.score-board p {
+    text-align: center;
+}
 .current-note { font-size:32px; font-weight:700; color:#111827; margin:10px 0; text-align:center; }
 
 .notes-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin:10px 0; }
 .notes-grid button { padding:12px; border-radius:10px; border:none; background:#f8fafc; font-weight:600; cursor:pointer; }
 
-.feedback { min-height:28px; text-align:center; margin-top:8px; font-weight:600; }
-.restart-btn { margin-top:12px; background:transparent; border:none; color:#6c5ce7; cursor:pointer; font-weight:600; }
+.feedback { min-height:28px; text-align:center; margin-top:10px; font-weight:600; margin-bottom: 10px; }
+.restart-btn { 
+    margin-top:12px; background:transparent; border:none; color:#6c5ce7; cursor:pointer; font-weight:600; 
+}
 
 /* Larger screens */
 @media (min-width: 600px) {
@@ -263,7 +271,6 @@ html, body {
 }
 
 .restart-btn {
-    margin-top: 20px;
     padding: 12px 30px;
     background: #764ba2;
     color: white;
@@ -273,6 +280,8 @@ html, body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .restart-btn:hover {
@@ -286,6 +295,13 @@ html, body {
     color: #666;
     margin-bottom: 10px;
     font-size: 16px;
+}
+
+.instruction-and-volume {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
 }
 
 /* Mobile adjustments */
