@@ -139,7 +139,7 @@ html, body {
 .notes-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin:10px 0; }
 .notes-grid button { padding:12px; border-radius:10px; border:none; background:#f8fafc; font-weight:600; cursor:pointer; }
 
-.feedback { min-height:28px; text-align:center; margin-top:8px; font-weight:600; }
+.feedback { min-height:28px; text-align:center; margin-top:10px; font-weight:600; margin-bottom: 10px; }
 .restart-btn { 
     margin-top:12px; background:transparent; border:none; color:#6c5ce7; cursor:pointer; font-weight:600; 
 }
