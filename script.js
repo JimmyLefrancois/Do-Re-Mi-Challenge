@@ -8,6 +8,7 @@ let currentNoteIndex = 0;
 let correctCount = 0;
 let totalCount = 0;
 let timerInterval = null;
+let acceptingInput = false;
 
 
 const difficultySettings = {
@@ -169,6 +170,9 @@ function stopTimer() {
 function handleTimeout() {
     totalCount++;
     const correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
+    
+    // prevent further clicks for this round
+    acceptingInput = false;
 
     showFeedback(`⏱️ Temps écoulé ! C'était ${notes[correctNoteIndex]}`, false);
     // Highlight the correct button so the user sees the answer
@@ -190,6 +194,8 @@ function generateNewNote() {
     setCurrentNoteText(notes[currentNoteIndex]);
     // clear any feedback state and recreate buttons
     showFeedback('', false);
+    // allow input for this new round
+    acceptingInput = true;
     createNoteButtons(checkAnswer);
     // Play the note when it appears
     playNoteByIndex(currentNoteIndex);
@@ -206,6 +212,9 @@ initRipples();
 }
 
 function checkAnswer(selectedNote, btnElement) {
+    // ignore if already answered / timeout occurred
+    if (!acceptingInput) return;
+    acceptingInput = false;
     stopTimer();
     totalCount++;
     const correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
@@ -234,8 +243,6 @@ function checkAnswer(selectedNote, btnElement) {
     }, 1500);
 }
 
-
-// use `updateScore` imported from `src/ui.js`
 
 // Mute button handling
 if (muteBtn) {
