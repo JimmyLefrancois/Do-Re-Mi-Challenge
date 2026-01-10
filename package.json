@@ -3,11 +3,22 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "build": "esbuild script.js --bundle --outfile=dist/script.js --minify --sourcemap",
+    "dev:build": "esbuild script.js --bundle --outfile=dist/script.js --sourcemap --watch",
+    "lint": "eslint --ext .js --fix ."
+  },
+  "vitest": {
+    "test": {
+      "environment": "jsdom"
+    }
   },
   "devDependencies": {
     "vitest": "^1.0.0",
     "jsdom": "^21.1.0",
-    "@testing-library/dom": "^8.0.0"
+    "@testing-library/dom": "^8.0.0",
+    "esbuild": "^0.18.0",
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0"
   }
 }

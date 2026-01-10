@@ -44,6 +44,33 @@ Si vous voulez, je peux :
 - intégrer des sons pour chaque note, ou
 - extraire le JavaScript dans un fichier séparé (`script.js`).
 
+Développement local
+-------------------
+
+1. Installer les dépendances :
+
+```bash
+npm install
+```
+
+2. Lancer les tests :
+
+```bash
+npm test
+```
+
+3. Construire un bundle optimisé :
+
+```bash
+npm run build
+```
+
+4. Lancer une construction en surveillance pendant le développement :
+
+```bash
+npm run dev:build
+```
+
 ---
 _Généré automatiquement — analyse concise du code et guide d'utilisation._
 # Do-Re-Mi-Challenge

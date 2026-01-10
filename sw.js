@@ -4,7 +4,11 @@ const ASSETS_TO_CACHE = [
   '/index.html',
   '/style.css',
   '/script.js',
-  '/manifest.json'
+  '/manifest.json',
+  // cache local ES module entrypoints to support offline / module loading
+  '/src/game.js',
+  '/src/ui.js',
+  '/src/audio.js'
 ];
 
 self.addEventListener('install', (event) => {
