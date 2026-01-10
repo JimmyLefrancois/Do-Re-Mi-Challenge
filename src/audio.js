@@ -64,7 +64,7 @@ async function applyTonePreset(name) {
       }).toDestination();
       break;
   }
-  console.log('Applied Tone preset for', name);
+  // debug: applied tone preset
 }
 
 async function ensureToneFallback() {
@@ -75,7 +75,7 @@ async function ensureToneFallback() {
   }
   try {
     synthFallback = new Tone.PolySynth(Tone.Synth).toDestination();
-    console.log('Tone fallback base synth ready');
+    // Tone fallback base synth ready
     await applyTonePreset(selectedInstrument);
     return synthFallback;
   } catch (err) {
@@ -93,11 +93,10 @@ async function ensurePiano() {
     return null;
   }
   try {
-    console.log('Loading instrument', selectedInstrument);
-    const inst = await Soundfont.instrument(audioCtx, selectedInstrument, { soundfont: 'MusyngKite' });
-    pianoInstrument = inst;
-    console.log('Instrument loaded:', selectedInstrument);
-    return inst;
+    // Loading instrument
+    pianoInstrument = await Soundfont.instrument(audioCtx, selectedInstrument, { soundfont: 'MusyngKite' });
+    // Instrument loaded
+    return pianoInstrument;
   } catch (err) {
     console.warn('Instrument load failed', selectedInstrument, err);
     return null;
@@ -108,9 +107,8 @@ export async function initAudio() {
   ensureAudio();
   const unlock = () => {
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    ensurePiano().then(inst => {
-      if (inst) console.log('Piano ready after user gesture');
-      else console.log('Piano not ready after user gesture');
+    ensurePiano().then(_inst => {
+      // piano ready state after user gesture
     });
     window.removeEventListener('pointerdown', unlock);
     window.removeEventListener('keydown', unlock);
@@ -150,13 +148,13 @@ export async function playNoteByIndex(index, duration = 0.6) {
   if (inst) {
     try {
       inst.play(noteNames[index], undefined, { duration });
-      console.log('Played sample note', noteNames[index], 'with', selectedInstrument);
+      // played sample note
       return;
     } catch (e) {
       console.warn('Sample play failed, falling back to synth', e);
     }
   } else {
-    console.log('No sample instrument available, using synth fallback (', selectedInstrument, ')');
+    // No sample instrument available, using synth fallback
   }
 
   if (!synthFallback && typeof Tone !== 'undefined') {
@@ -166,7 +164,7 @@ export async function playNoteByIndex(index, duration = 0.6) {
     try {
       const toneNotes = ['C4','D4','E4','F4','G4','A4','B4'];
       synthFallback.triggerAttackRelease(toneNotes[index], duration);
-      console.log('Played note via Tone fallback', toneNotes[index]);
+      // played note via Tone fallback
       return;
     } catch (err) {
       console.warn('Tone fallback failed', err);

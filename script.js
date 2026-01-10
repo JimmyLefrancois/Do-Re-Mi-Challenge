@@ -1,5 +1,5 @@
-import { notes, shuffleArray, getCorrectIndex, getRandomIndex, setNotation } from './src/game.js';
-import audio, { initAudio, playNoteByIndex, playNoteByName, toggleMute, isMuted } from './src/audio.js';
+import { notes, getCorrectIndex, setNotation } from './src/game.js';
+import { initAudio, playNoteByIndex, playNoteByName, toggleMute } from './src/audio.js';
 import { initRipples, createNoteButtons, highlightButton, setCurrentNoteText, setTimerVisibility, setTimerFillWidth, setTimerText, updateScore, showFeedback } from './src/ui.js';
 
 let currentMode = null;
@@ -8,7 +8,6 @@ let currentNoteIndex = 0;
 let correctCount = 0;
 let totalCount = 0;
 let timerInterval = null;
-let timeLeft = 0;
 
 
 const difficultySettings = {
@@ -20,15 +19,9 @@ const difficultySettings = {
 const modeSelection = document.getElementById('modeSelection');
 const gameArea = document.getElementById('gameArea');
 const currentNoteEl = document.getElementById('currentNote');
-const notesGrid = document.getElementById('notesGrid');
-const feedbackEl = document.getElementById('feedback');
-const scoreInlineEl = document.getElementById('scoreInline');
 const restartBtn = document.getElementById('restartBtn');
 const instructionEl = document.getElementById('instruction');
 const startGameBtn = document.getElementById('startGameBtn');
-const timerBar = document.getElementById('timerBar');
-const timerFill = document.getElementById('timerFill');
-const timerText = document.getElementById('timerText');
 const installBtn = document.getElementById('installBtn');
 const intlCheckbox = document.getElementById('intlNotationCheckbox');
 const muteBtn = document.getElementById('muteBtn');
@@ -116,7 +109,7 @@ if (installBtn) {
     installBtn.addEventListener('click', async () => {
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
+            await deferredPrompt.userChoice;
         deferredPrompt = null;
         installBtn.style.display = 'none';
     });
@@ -148,7 +141,7 @@ function startTimer(duration) {
     stopTimer();
     if (duration === 0) return;
 
-    timeLeft = duration;
+    // duration tracked via local timer variables (no global needed)
     const startTime = Date.now();
     const endTime = startTime + (duration * 1000);
 
@@ -175,9 +168,7 @@ function stopTimer() {
 
 function handleTimeout() {
     totalCount++;
-    let correctNoteIndex;
-
-    correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
+    const correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     showFeedback(`⏱️ Temps écoulé ! C'était ${notes[correctNoteIndex]}`, false);
     // Highlight the correct button so the user sees the answer
@@ -217,9 +208,7 @@ initRipples();
 function checkAnswer(selectedNote, btnElement) {
     stopTimer();
     totalCount++;
-    let correctNoteIndex;
-
-    correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
+    const correctNoteIndex = getCorrectIndex(currentNoteIndex, currentMode, notes.length);
 
     const isCorrect = selectedNote === notes[correctNoteIndex];
 
@@ -246,9 +235,7 @@ function checkAnswer(selectedNote, btnElement) {
 }
 
 
-function updateScore() {
-    if (scoreInlineEl) scoreInlineEl.textContent = `Réponses : ${correctCount}/${totalCount}`;
-}
+// use `updateScore` imported from `src/ui.js`
 
 // Mute button handling
 if (muteBtn) {
